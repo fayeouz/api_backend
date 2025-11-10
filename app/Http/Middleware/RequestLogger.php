@@ -20,7 +20,8 @@ class RequestLogger
         $duration = ($endTime - $startTime) * 1000; // en millisecondes
 
         // Logger les informations de la requête
-        Log::channel('elasticsearch')->info('API Request', [
+        // Utilise le channel par défaut au lieu de 'elasticsearch'
+        Log::info('API Request', [
             'type' => 'api_request',
             'method' => $request->method(),
             'url' => $request->fullUrl(),

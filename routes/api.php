@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\IncrementController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
@@ -69,6 +70,13 @@ Route::prefix('v1')->group(function () {
     //INCREMENT
     Route::apiResource('increment',IncrementController::class)->middleware('auth:api');
     Route::get('increment-by-user-story', [IncrementController::class, 'indexByUserStory']);
+
+    //MEETING
+    Route::apiResource('meetings', MeetingController::class)->middleware('auth:api');
+    Route::get('meetings/project/{projectId}', [MeetingController::class, 'getMeetingsByProject'])->middleware('auth:api');
+    Route::get('meetings/user/{userId}', [MeetingController::class, 'getMeetingsByUser'])->middleware('auth:api');
+    Route::get('meetings/stats/{projectId}', [MeetingController::class, 'getProjectMeetingStats'])->middleware('auth:api');
+    Route::get('my-meetings', [MeetingController::class, 'myMeetings'])->middleware('auth:api');
 
     //LOGOUT
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');

@@ -14,18 +14,21 @@ class ElasticsearchService
 
     public function __construct()
     {
-        // Check if Elasticsearch is enabled
-        $this->enabled = env('LOG_ELASTICSEARCH_ENABLED', false);
+        // Check if Elasticsearch is enabled via environment variable
+        $this->enabled = filter_var(env('LOG_ELASTICSEARCH_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
 
         if (!$this->enabled) {
             $this->client = null;
+            Log::debug('Elasticsearch is disabled via LOG_ELASTICSEARCH_ENABLED');
             return;
         }
 
         try {
             // Create client builder
+            $hosts = config('elasticsearch.hosts', ['http://localhost:9200']);
+
             $builder = ClientBuilder::create()
-                ->setHosts(config('elasticsearch.hosts'));
+                ->setHosts($hosts);
 
             // Try to set headers if method exists (for newer versions)
             if (method_exists($builder, 'setHeaders')) {
@@ -39,15 +42,13 @@ class ElasticsearchService
             }
 
             $this->client = $builder->build();
-            $this->indexPrefix = config('elasticsearch.index_prefix');
+            $this->indexPrefix = config('elasticsearch.index_prefix', 'gestion_projet');
 
             // Test connection with timeout
             $this->client->ping();
             Log::info('Elasticsearch connection established');
         } catch (\Exception $e) {
-            Log::warning('Elasticsearch unavailable, logging disabled', [
-                'error' => $e->getMessage()
-            ]);
+            Log::debug('Elasticsearch unavailable, logging disabled: ' . $e->getMessage());
             $this->client = null;
             $this->enabled = false;
         }
@@ -90,10 +91,8 @@ class ElasticsearchService
 
             $this->client->index($params);
         } catch (\Exception $e) {
-            Log::debug('Elasticsearch metric logging failed', [
-                'type' => $type,
-                'error' => $e->getMessage()
-            ]);
+            // Silently fail - don't break the application
+            Log::debug('Elasticsearch metric logging failed: ' . $e->getMessage());
         }
     }
 
@@ -140,10 +139,8 @@ class ElasticsearchService
 
             $this->client->index($params);
         } catch (\Exception $e) {
-            Log::debug('Elasticsearch activity logging failed', [
-                'action' => $action,
-                'error' => $e->getMessage()
-            ]);
+            // Silently fail - don't break the application
+            Log::debug('Elasticsearch activity logging failed: ' . $e->getMessage());
         }
     }
 
@@ -286,10 +283,8 @@ class ElasticsearchService
 
             $this->client->index($params);
         } catch (\Exception $e) {
-            Log::debug('Elasticsearch performance logging failed', [
-                'operation' => $operation,
-                'error' => $e->getMessage()
-            ]);
+            // Silently fail - don't break the application
+            Log::debug('Elasticsearch performance logging failed: ' . $e->getMessage());
         }
     }
 
@@ -320,9 +315,7 @@ class ElasticsearchService
 
             return $this->client->search($params);
         } catch (\Exception $e) {
-            Log::warning('Elasticsearch search failed', [
-                'error' => $e->getMessage()
-            ]);
+            Log::debug('Elasticsearch search failed: ' . $e->getMessage());
             return ['hits' => ['hits' => []]];
         }
     }

@@ -54,7 +54,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single'], // N'utilise que 'single', pas 'elasticsearch'
             'ignore_exceptions' => false,
         ],
 
@@ -62,6 +62,7 @@ return [
             'driver' => 'custom',
             'via' => App\Logging\CreateElasticsearchLogger::class,
             'level' => env('LOG_LEVEL', 'debug'),
+            // Ce channel existe mais ne sera pas utilisé si LOG_ELASTICSEARCH_ENABLED=false
         ],
 
         'single' => [

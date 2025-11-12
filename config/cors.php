@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://gestion-project-softweb.vercel.app',],
+    'allowed_origins' => ['https://gestion-project-softweb.vercel.app', 'https://www.softweb.fun',],
 
     'allowed_origins_patterns' => ['*'],
 

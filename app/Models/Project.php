@@ -34,4 +34,10 @@ class Project extends Model
     {
         return $this->hasOne(ChatProject::class);
     }
+
+    // Un projet peut avoir plusieurs meetings
+    public function meetings()
+    {
+        return $this->hasMany(Meeting::class);
+    }
 }

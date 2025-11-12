@@ -54,8 +54,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/projects/{projectId}/user-stories', [UserStoryController::class, 'getProjectUserStories'])->middleware('auth:api');
 
     //TASK
-    Route::apiResource('task', TaskController::class)->middleware('auth:api');
+    Route::patch('task/{id}/status', [TaskController::class, 'updateStatus'])->middleware('auth:api');
     Route::get('/my-tasks', [TaskController::class, 'myTasks'])->middleware('auth:api');
+    Route::apiResource('task', TaskController::class)->middleware('auth:api');
+
 
     //NOTIFICATION
     Route::apiResource('notification', NotificationController::class)->middleware('auth:api');
@@ -72,7 +74,7 @@ Route::prefix('v1')->group(function () {
     Route::get('increment-by-user-story', [IncrementController::class, 'indexByUserStory']);
 
     //MEETING
-    Route::apiResource('meetings', MeetingController::class)->middleware('auth:api');
+    Route::apiResource('meeting', MeetingController::class)->middleware('auth:api');
     Route::get('meetings/project/{projectId}', [MeetingController::class, 'getMeetingsByProject'])->middleware('auth:api');
     Route::get('meetings/user/{userId}', [MeetingController::class, 'getMeetingsByUser'])->middleware('auth:api');
     Route::get('meetings/stats/{projectId}', [MeetingController::class, 'getProjectMeetingStats'])->middleware('auth:api');

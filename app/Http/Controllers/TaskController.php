@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskRequest;
+use App\Http\Requests\Updatetaskstatusrequest;
 use App\Services\TaskService;
 use App\Services\ElasticsearchService;
 use Illuminate\Support\Facades\Log;
@@ -123,60 +124,61 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(TaskRequest $request, string $id)
+    public function updateStatus(UpdateTaskStatusRequest $request, string $id)
     {
         $startTime = microtime(true);
 
         try {
             $oldTask = $this->taskService->show($id);
-            $task = $this->taskService->update($request->validated(), $id);
+
+            // Mettre à jour uniquement le statut
+            $task = $this->taskService->update([
+                'status' => $request->validated()['status']
+            ], $id);
 
             $duration = (microtime(true) - $startTime) * 1000;
 
-            // Vérifier si le statut a changé
-            $statusChanged = $oldTask->status !== $task->status;
-
-            $this->elasticsearchService->logUserActivity('task_updated', [
+            // Le statut a changé par définition
+            $this->elasticsearchService->logUserActivity('task_status_updated', [
                 'task_id' => $id,
                 'task_title' => $task->title,
-                'status_changed' => $statusChanged,
                 'old_status' => $oldTask->status,
                 'new_status' => $task->status,
+                'via' => 'kanban',
             ]);
 
             // Log les métriques de progression
-            if ($statusChanged) {
-                $this->elasticsearchService->logMetric('task_status_change', [
-                    'task_id' => $id,
-                    'old_status' => $oldTask->status,
-                    'new_status' => $task->status,
-                    'user_id' => auth()->id(),
-                ]);
+            $this->elasticsearchService->logMetric('task_status_change', [
+                'task_id' => $id,
+                'old_status' => $oldTask->status,
+                'new_status' => $task->status,
+                'user_id' => auth()->id(),
+            ]);
 
-                // Log spécial pour les tâches complétées
-                if ($task->status === 'completed') {
-                    $this->elasticsearchService->logMetric('task_completed', [
-                        'task_id' => $id,
-                        'completed_by' => auth()->id(),
-                        'assigned_to' => $task->assigned_to,
-                    ]);
-                }
+            // Log spécial pour les tâches complétées
+            if ($task->status === 'completed') {
+                $this->elasticsearchService->logMetric('task_completed', [
+                    'task_id' => $id,
+                    'completed_by' => auth()->id(),
+                    'assigned_to' => $task->assigned_to,
+                ]);
             }
 
-            $this->elasticsearchService->logPerformance('update_task', $duration, [
+            $this->elasticsearchService->logPerformance('update_task_status', $duration, [
                 'task_id' => $id,
             ]);
 
-            Log::info('Task updated successfully', [
+            Log::info('Task status updated via Kanban', [
                 'task_id' => $id,
-                'status_changed' => $statusChanged,
+                'old_status' => $oldTask->status,
+                'new_status' => $task->status,
                 'user_id' => auth()->id(),
             ]);
 
             return response()->json($task, 200);
 
         } catch (\Exception $e) {
-            Log::error('Failed to update task', [
+            Log::error('Failed to update task status', [
                 'task_id' => $id,
                 'error' => $e->getMessage(),
                 'user_id' => auth()->id(),
@@ -184,7 +186,6 @@ class TaskController extends Controller
             throw $e;
         }
     }
-
     /**
      * Remove the specified resource from storage.
      */

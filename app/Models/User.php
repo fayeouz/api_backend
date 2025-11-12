@@ -58,6 +58,12 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Message::class);
     }
 
+    // Un user peut organiser plusieurs meetings
+    public function meetings()
+    {
+        return $this->hasMany(Meeting::class);
+    }
+
     // Un user peut recevoir plusieurs notifications
     public function notifications()
     {

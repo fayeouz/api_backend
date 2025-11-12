@@ -19,8 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:8080',
-        'http://127.0.0.1:8080','https://gestion-project-softweb.vercel.app/',],
+    'allowed_origins' => ['https://gestion-project-softweb.vercel.app',],
 
     'allowed_origins_patterns' => ['*'],
 

@@ -44,8 +44,8 @@ class MeetingService
             if ($user->id !== $meeting->user_id) {
                 $this->notificationService->create(
                     $user->id,
-                    'New Meeting Scheduled',
-                    "A new {$meetingType} meeting titled '{$meeting->title}' has been scheduled for project '{$project->name}' by {$organizer->name}. Duration: {$meeting->duration} minutes."
+                    'Nouvelle réunion programmée',
+                    "Un nouveau {$meetingType} réunion intitulée '{$meeting->title}' a été programmé pour le projet '{$project->name}' par {$organizer->name}. Duration: {$meeting->duration} minutes."
                 );
             }
         }

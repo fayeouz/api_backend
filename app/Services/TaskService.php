@@ -35,8 +35,8 @@ class TaskService
             if ($assignedUser) {
                 $this->notificationService->create(
                     $assignedUser->id,
-                    'New Task Assigned',
-                    "You have been assigned a new task '{$task->title}' by {$assignedBy->name}"
+                    'Nouvelle tâche attribuée',
+                    "Une nouvelle tâche vous a été attribuée. '{$task->title}' par {$assignedBy->name}"
                 );
             }
         }

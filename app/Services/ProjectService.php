@@ -74,8 +74,8 @@ class ProjectService
             foreach ($newUserIds as $userId) {
                 $this->notificationService->create(
                     $userId,
-                    'Added to Project',
-                    "You have been added to the project '{$project->name}' by {$addedBy->name}"
+                    'Ajouté au projet',
+                    "Vous avez été ajouté au projet '{$project->name}' par {$addedBy->name}"
                 );
             }
         }
